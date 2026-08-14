@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}{{ app_name }} - Скидка {{ discount_percent }}%{% endblock %}
+
+{% block content %}
+<div class="landing-container">
+    <div class="landing-hero">
+        <h1 class="landing-title">{{ app_name }}</h1>
+        <p class="landing-subtitle">Зарегистрируйтесь и получите скидку <strong>{{ discount_percent }}%</strong> постоянного покупателя</p>
+        
+        <div class="landing-benefits">
+            <div class="benefit-card">
+                <div class="benefit-icon">🎯</div>
+                <h3>Простая регистрация</h3>
+                <p>Заполните форму за 1 минуту</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">💳</div>
+                <h3>Код скидки в телефоне</h3>
+                <p>Всегда под рукой в личном кабинете</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">🏷️</div>
+                <h3>Скидка {{ discount_percent }}%</h3>
+                <p>На все покупки в магазинах сети</p>
+            </div>
+        </div>
+        
+        <div class="landing-actions">
+            <a href="{{ url_for('public.register', store=store_code) }}" class="btn btn-primary btn-lg">Зарегистрироваться</a>
+            <a href="{{ url_for('public.login') }}" class="btn btn-outline btn-lg">Уже есть аккаунт</a>
+        </div>
+        
+        <div class="landing-qr-hint">
+            <p>📱 Отсканируйте QR-код на кассе для быстрой регистрации</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

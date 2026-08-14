@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Регистрация - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h1 class="auth-title">Регистрация в программе лояльности</h1>
+        <p class="auth-subtitle">Зарегистрируйтесь и получите скидку {{ discount_percent }}% постоянного покупателя</p>
+        
+        <form method="POST" action="{{ url_for('public.register', store=store_code) }}" class="auth-form">
+            <div class="form-group">
+                <label for="phone">Номер телефона *</label>
+                <input type="tel" id="phone" name="phone" 
+                       value="{{ phone if phone else '' }}" 
+                       placeholder="+7 (___) ___-__-__" 
+                       required 
+                       pattern="\+7\d{10}"
+                       class="form-control">
+                <small class="form-text">Формат: +7 (XXX) XXX-XX-XX</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">E-mail *</label>
+                <input type="email" id="email" name="email" 
+                       value="{{ email if email else '' }}" 
+                       placeholder="example@mail.ru" 
+                       required 
+                       class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="fio">ФИО (необязательно)</label>
+                <input type="text" id="fio" name="fio" 
+                       value="{{ fio if fio else '' }}" 
+                       placeholder="Иванов Иван Иванович" 
+                       maxlength="100"
+                       class="form-control">
+            </div>
+            
+            <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="consent_pd" required {{ 'checked' if consent_pd else '' }}>
+                    <span>Я согласен на <a href="{{ url_for('public.policy') }}" target="_blank">обработку персональных данных</a> *</span>
+                </label>
+            </div>
+            
+            <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="consent_marketing" {{ 'checked' if consent_marketing else '' }}>
+                    <span>Хочу получать новости и акции</span>
+                </label>
+            </div>
+            
+            <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="rules_accepted" required>
+                    <span>Я согласен с <a href="{{ url_for('public.rules') }}" target="_blank">правилами программы лояльности</a> *</span>
+                </label>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block">Получить код подтверждения</button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Уже зарегистрированы? <a href="{{ url_for('public.login') }}">Войти в личный кабинет</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Маска для телефона
+document.getElementById('phone').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.startsWith('7')) {
+        value = value.substring(0, 11);
+    } else if (value.length > 10) {
+        value = value.substring(0, 11);
+    }
+    
+    if (value.length >= 1) {
+        let formatted = '+7';
+        if (value.length > 1) {
+            formatted += ' (' + value.substring(1, 4);
+        }
+        if (value.length > 4) {
+            formatted += ') ' + value.substring(4, 7);
+        }
+        if (value.length > 7) {
+            formatted += '-' + value.substring(7, 9);
+        }
+        if (value.length > 9) {
+            formatted += '-' + value.substring(9, 11);
+        }
+        e.target.value = formatted;
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Отозвать согласие - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="revoke-container">
+    <div class="revoke-card">
+        <h1 class="revoke-title">Отозвать согласие на обработку персональных данных</h1>
+        
+        <div class="warning-box">
+            <p><strong>Внимание!</strong></p>
+            <p>При отзыве согласия:</p>
+            <ul>
+                <li>Ваш аккаунт будет деактивирован</li>
+                <li>Код скидки перестанет действовать</li>
+                <li>Участие в программе лояльности прекратится</li>
+                <li>Ваши данные будут помечены как «Согласие отозвано» и сохранены для соблюдения требований законодательства</li>
+            </ul>
+        </div>
+        
+        <form method="POST" action="{{ url_for('dashboard.revoke_consent') }}" class="revoke-form">
+            <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="confirm_revoke" required>
+                    <span>Я понимаю последствия и хочу отозвать согласие</span>
+                </label>
+            </div>
+            
+            <div class="revoke-actions">
+                <button type="submit" class="btn btn-danger">Отозвать согласие</button>
+                <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.warning-box {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 0 6px 6px 0;
+}
+
+.warning-box ul {
+    margin-top: 10px;
+    padding-left: 20px;
+}
+
+.revoke-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+    border: none;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+</style>
+{% endblock %}
