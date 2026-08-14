@@ -3,6 +3,9 @@ from datetime import datetime, timedelta
 from functools import wraps
 import io
 import json
+from barcode import Code128
+from barcode.writer import ImageWriter
+from PIL import Image
 from ..models import db, User, UserStatus, Setting, ExportLog, PageContent
 from ..services.export import ExportService
 
@@ -58,6 +61,28 @@ def show_code():
                          user=user,
                          discount_percent=discount_percent,
                          app_name=app_name)
+
+
+@dashboard_bp.route('/barcode.png')
+@login_required
+def get_barcode():
+    """Генерация штрих-кода для карты лояльности"""
+    user = User.query.get(session['user_id'])
+    
+    # Создаем штрих-код Code128 с номером карты
+    barcode = Code128(user.discount_code, writer=ImageWriter())
+    
+    # Генерируем изображение в буфер
+    buffer = io.BytesIO()
+    barcode.write(buffer, options={'module_width': 0.4, 'module_height': 15.0, 'font_size': 10})
+    buffer.seek(0)
+    
+    return send_file(
+        buffer,
+        mimetype='image/png',
+        as_attachment=False,
+        download_name=f'barcode_{user.discount_code}.png'
+    )
 
 
 @dashboard_bp.route('/revoke-consent', methods=['GET', 'POST'])
