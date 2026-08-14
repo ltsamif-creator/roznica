@@ -2,38 +2,142 @@
 
 {% block title %}{{ app_name }} - Скидка {{ discount_percent }}%{% endblock %}
 
+{% block extra_css %}
+<style>
+    .landing-hero {
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .landing-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--primary-700);
+        margin-bottom: 16px;
+        line-height: 1.2;
+    }
+
+    .landing-subtitle {
+        font-size: 1.25rem;
+        color: var(--gray-500);
+        margin-bottom: 48px;
+        line-height: 1.6;
+    }
+
+    .landing-subtitle strong {
+        color: var(--primary-600);
+    }
+
+    .landing-benefits {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 24px;
+        margin-bottom: 48px;
+    }
+
+    .benefit-card {
+        background: white;
+        padding: 32px 24px;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--gray-100);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .benefit-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .benefit-icon {
+        font-size: 3rem;
+        margin-bottom: 16px;
+        display: block;
+    }
+
+    .benefit-card h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        margin-bottom: 8px;
+    }
+
+    .benefit-card p {
+        color: var(--gray-500);
+        font-size: 0.95rem;
+    }
+
+    .landing-actions {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 32px;
+    }
+
+    .btn-lg {
+        padding: 14px 32px;
+        font-size: 1.05rem;
+    }
+
+    .landing-qr-hint {
+        background: var(--primary-50);
+        color: var(--primary-900);
+        padding: 16px 24px;
+        border-radius: var(--radius-md);
+        display: inline-block;
+        font-size: 0.95rem;
+    }
+
+    @media (max-width: 768px) {
+        .landing-title {
+            font-size: 2rem;
+        }
+        .landing-subtitle {
+            font-size: 1.1rem;
+        }
+        .landing-actions {
+            flex-direction: column;
+        }
+        .btn-lg {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="landing-container">
-    <div class="landing-hero">
-        <h1 class="landing-title">{{ app_name }}</h1>
-        <p class="landing-subtitle">Зарегистрируйтесь и получите скидку <strong>{{ discount_percent }}%</strong> постоянного покупателя</p>
-        
-        <div class="landing-benefits">
-            <div class="benefit-card">
-                <div class="benefit-icon">🎯</div>
-                <h3>Простая регистрация</h3>
-                <p>Заполните форму за 1 минуту</p>
-            </div>
-            <div class="benefit-card">
-                <div class="benefit-icon">💳</div>
-                <h3>Код скидки в телефоне</h3>
-                <p>Всегда под рукой в личном кабинете</p>
-            </div>
-            <div class="benefit-card">
-                <div class="benefit-icon">🏷️</div>
-                <h3>Скидка {{ discount_percent }}%</h3>
-                <p>На все покупки в магазинах сети</p>
-            </div>
+<div class="landing-hero">
+    <h1 class="landing-title">{{ app_name }}</h1>
+    <p class="landing-subtitle">Зарегистрируйтесь и получите скидку <strong>{{ discount_percent }}%</strong> постоянного покупателя</p>
+    
+    <div class="landing-benefits">
+        <div class="benefit-card">
+            <div class="benefit-icon">🎯</div>
+            <h3>Простая регистрация</h3>
+            <p>Заполните форму за 1 минуту</p>
         </div>
-        
-        <div class="landing-actions">
-            <a href="{{ url_for('public.register', store=store_code) }}" class="btn btn-primary btn-lg">Зарегистрироваться</a>
-            <a href="{{ url_for('public.login') }}" class="btn btn-outline btn-lg">Уже есть аккаунт</a>
+        <div class="benefit-card">
+            <div class="benefit-icon">💳</div>
+            <h3>Код скидки в телефоне</h3>
+            <p>Всегда под рукой в личном кабинете</p>
         </div>
-        
-        <div class="landing-qr-hint">
-            <p>📱 Отсканируйте QR-код на кассе для быстрой регистрации</p>
+        <div class="benefit-card">
+            <div class="benefit-icon">🏷️</div>
+            <h3>Скидка {{ discount_percent }}%</h3>
+            <p>На все покупки в магазинах сети</p>
         </div>
+    </div>
+    
+    <div class="landing-actions">
+        <a href="{{ url_for('public.register', store=store_code) }}" class="btn btn-primary btn-lg">Зарегистрироваться</a>
+        <a href="{{ url_for('public.login') }}" class="btn btn-outline btn-lg">Уже есть аккаунт</a>
+    </div>
+    
+    <div class="landing-qr-hint">
+        <p>📱 Отсканируйте QR-код на кассе для быстрой регистрации</p>
     </div>
 </div>
 {% endblock %}

@@ -83,8 +83,6 @@ def dashboard():
         User.created_at >= datetime.utcnow().date()
     ).count()
     week_users = User.query.filter(
-        User.query.filter(User.created_at >= datetime.utcnow() - timedelta(days=7))
-    ).count() if hasattr(User.query, 'filter') else User.query.filter(
         User.created_at >= datetime.utcnow() - timedelta(days=7)
     ).count()
     
