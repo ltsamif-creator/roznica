@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}История экспортов{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <h2>История экспортов</h2>
+    
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Дата создания</th>
+                        <th>Файл</th>
+                        <th>Формат</th>
+                        <th>Записей</th>
+                        <th>Создал</th>
+                        <th>Фильтры</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for export in exports %}
+                    <tr>
+                        <td>{{ export.id }}</td>
+                        <td>{{ export.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                        <td>{{ export.filename }}</td>
+                        <td>{{ export.file_format }}</td>
+                        <td>{{ export.records_count }}</td>
+                        <td>{{ export.created_by }}</td>
+                        <td><small>{{ export.filters }}</small></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <a href="{{ url_for('admin.export') }}" class="btn btn-primary">Новый экспорт</a>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Назад к дашборду</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

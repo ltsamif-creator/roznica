@@ -344,22 +344,17 @@ class TestDashboardRoutes(BaseTestCase):
         db.session.add(user)
         db.session.commit()
         
-        # Создаем SMS-код для входа
-        sms_code = SMSCode(
-            user_id=user.id,
-            code='9999',
-            phone='+79991234573',
-            purpose='login',
-            expires_at=datetime.utcnow() + timedelta(minutes=5)
-        )
-        db.session.add(sms_code)
-        db.session.commit()
-        
-        # Вход через SMS
+        # Вход через SMS - сначала запрашиваем код
         login_data = {'phone': '+79991234573'}
         response = self.client.post('/login', data=login_data, follow_redirects=True)
         
-        verify_data = {'code': '9999'}
+        # Получаем код из сессии через cookie клиента теста
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sms_code = sess.get('sms_code')
+        
+        # Вводим полученный код
+        verify_data = {'code': sms_code}
         response = self.client.post('/verify-sms', data=verify_data, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         
