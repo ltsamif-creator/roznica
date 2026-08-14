@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Личный кабинет - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Здравствуйте{% if user.fio %}, {{ user.fio.split()[0] }}{% endif %}!</h1>
+        <p class="welcome-text">Добро пожаловать в программу лояльности</p>
+    </div>
+    
+    <div class="discount-card">
+        <div class="discount-header">
+            <h2>Ваша скидка <span class="discount-percent">{{ discount_percent }}%</span></h2>
+        </div>
+        
+        <div class="code-display">
+            <p class="code-label">Ваш код постоянного покупателя:</p>
+            <div class="code-value">{{ user.discount_code }}</div>
+            <p class="code-hint">Покажите этот код кассиру для получения скидки</p>
+        </div>
+        
+        <a href="{{ url_for('dashboard.show_code') }}" class="btn btn-primary btn-lg btn-block">Показать код на весь экран</a>
+    </div>
+    
+    <div class="user-info-card">
+        <h3>Информация о покупателе</h3>
+        <dl class="info-list">
+            <dt>Телефон</dt>
+            <dd>{{ user.phone }}</dd>
+            
+            <dt>E-mail</dt>
+            <dd>{{ user.email }}</dd>
+            
+            {% if user.fio %}
+            <dt>ФИО</dt>
+            <dd>{{ user.fio }}</dd>
+            {% endif %}
+            
+            <dt>Дата регистрации</dt>
+            <dd>{{ user.created_at.strftime('%d.%m.%Y %H:%M') }}</dd>
+            
+            <dt>Магазин регистрации</dt>
+            <dd>№{{ user.store_code }}</dd>
+        </dl>
+        
+        <div class="user-actions">
+            <a href="{{ url_for('dashboard.revoke_consent') }}" class="btn btn-outline btn-sm">Отозвать согласие на обработку ПДн</a>
+            <a href="{{ url_for('public.logout') }}" class="btn btn-outline btn-sm">Выйти</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.discount-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.code-value {
+    font-size: 48px;
+    font-weight: bold;
+    letter-spacing: 4px;
+    background: rgba(255,255,255,0.2);
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    font-family: 'Courier New', monospace;
+}
+
+.discount-percent {
+    font-size: 48px;
+    color: #ffd700;
+}
+
+.info-list {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 10px 20px;
+    margin: 20px 0;
+}
+
+.info-list dt {
+    font-weight: 600;
+    color: #666;
+}
+
+.user-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+</style>
+{% endblock %}
