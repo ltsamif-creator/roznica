@@ -136,7 +136,7 @@ class ValidationService:
     @staticmethod
     def validate_phone(phone: str) -> tuple[bool, str]:
         """
-        Валидация номера телефона
+        Валидация номера телефона (упрощенная)
         
         Args:
             phone: Номер телефона
@@ -144,42 +144,33 @@ class ValidationService:
         Returns:
             (is_valid, normalized_phone или сообщение об ошибке)
         """
-        import phonenumbers
+        # Временное логирование для отладки
+        print(f"[DEBUG] Получен номер телефона: {repr(phone)}")
         
         if not phone:
             return False, 'Номер телефона обязателен'
         
-        try:
-            # Пытаемся распарсить номер
-            parsed = phonenumbers.parse(phone, 'RU')
-            
-            # Проверяем, что это российский номер
-            if phonenumbers.country_code_for_region('RU') != 7:
-                if parsed.country_code != 7:
-                    return False, 'Поддерживаются только российские номера'
-            
-            # Проверяем валидность
-            if not phonenumbers.is_valid_number(parsed):
-                return False, 'Неверный формат номера телефона'
-            
-            # Нормализуем к формату +7XXXXXXXXXX
-            normalized = '+' + str(parsed.country_code) + str(phonenumbers.national_number(parsed))
-            
-            if len(normalized) != 12:
-                return False, 'Неверный формат номера'
-            
-            return True, normalized
-            
-        except phonenumbers.NumberParseException:
-            # Если не удалось распарсить, пробуем простой формат
-            clean_phone = ''.join(c for c in phone if c.isdigit())
-            
-            if len(clean_phone) == 11 and clean_phone.startswith('7'):
-                return True, '+' + clean_phone
-            elif len(clean_phone) == 10:
-                return True, '+7' + clean_phone
-            else:
-                return False, 'Неверный формат номера. Ожидается +7 (XXX) XXX-XX-XX'
+        # Удаляем все нецифровые символы
+        clean_phone = ''.join(c for c in phone if c.isdigit())
+        
+        print(f"[DEBUG] Очищенный номер: {clean_phone}")
+        
+        # Проверяем длину и начало номера
+        if len(clean_phone) != 11:
+            return False, 'Номер должен содержать 11 цифр'
+        
+        if not (clean_phone.startswith('7') or clean_phone.startswith('8')):
+            return False, 'Номер должен начинаться с 7 или 8'
+        
+        # Приводим к формату +7XXXXXXXXXX
+        if clean_phone.startswith('8'):
+            clean_phone = '7' + clean_phone[1:]
+        
+        normalized = '+' + clean_phone
+        
+        print(f"[DEBUG] Нормализованный номер: {normalized}")
+        
+        return True, normalized
     
     @staticmethod
     def validate_email(email: str) -> tuple[bool, str]:

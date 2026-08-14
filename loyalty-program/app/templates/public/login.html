@@ -31,7 +31,7 @@
 
 {% block extra_js %}
 <script>
-// Маска для телефона
+// Маска для телефона - отправляет чистый номер без лишних символов
 document.getElementById('phone').addEventListener('input', function(e) {
     let value = e.target.value.replace(/\D/g, '');
     if (value.startsWith('7')) {
@@ -56,6 +56,14 @@ document.getElementById('phone').addEventListener('input', function(e) {
         }
         e.target.value = formatted;
     }
+});
+
+// Перед отправкой формы очищаем номер от всех нецифровых символов
+document.querySelector('form').addEventListener('submit', function(e) {
+    const phoneInput = document.getElementById('phone');
+    // Сохраняем чистый номер (только цифры) в поле перед отправкой
+    phoneInput.value = phoneInput.value.replace(/\D/g, '');
+    console.log('[DEBUG] Отправляемый номер телефона:', phoneInput.value);
 });
 </script>
 {% endblock %}
