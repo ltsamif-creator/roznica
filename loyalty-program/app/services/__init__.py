@@ -144,42 +144,27 @@ class ValidationService:
         Returns:
             (is_valid, normalized_phone или сообщение об ошибке)
         """
-        import phonenumbers
-        
         if not phone:
             return False, 'Номер телефона обязателен'
         
-        try:
-            # Пытаемся распарсить номер
-            parsed = phonenumbers.parse(phone, 'RU')
-            
-            # Проверяем, что это российский номер
-            if phonenumbers.country_code_for_region('RU') != 7:
-                if parsed.country_code != 7:
-                    return False, 'Поддерживаются только российские номера'
-            
-            # Проверяем валидность
-            if not phonenumbers.is_valid_number(parsed):
-                return False, 'Неверный формат номера телефона'
-            
-            # Нормализуем к формату +7XXXXXXXXXX
-            normalized = '+' + str(parsed.country_code) + str(phonenumbers.national_number(parsed))
-            
-            if len(normalized) != 12:
-                return False, 'Неверный формат номера'
-            
-            return True, normalized
-            
-        except phonenumbers.NumberParseException:
-            # Если не удалось распарсить, пробуем простой формат
-            clean_phone = ''.join(c for c in phone if c.isdigit())
-            
-            if len(clean_phone) == 11 and clean_phone.startswith('7'):
-                return True, '+' + clean_phone
-            elif len(clean_phone) == 10:
-                return True, '+7' + clean_phone
-            else:
-                return False, 'Неверный формат номера. Ожидается +7 (XXX) XXX-XX-XX'
+        # Очищаем номер от всех нецифровых символов, кроме '+'
+        clean_phone = ''.join(c for c in phone if c.isdigit())
+        
+        # Обрабатываем разные варианты ввода
+        if len(clean_phone) == 11 and clean_phone.startswith('7'):
+            # Формат 7XXXXXXXXXX
+            return True, '+' + clean_phone
+        elif len(clean_phone) == 11 and clean_phone.startswith('8'):
+            # Формат 8XXXXXXXXXX -> заменяем 8 на 7
+            return True, '+7' + clean_phone[1:]
+        elif len(clean_phone) == 10:
+            # Формат XXXXXXXXXX -> добавляем +7
+            return True, '+7' + clean_phone
+        elif len(clean_phone) == 12 and clean_phone.startswith('7'):
+            # Уже формат 7XXXXXXXXXX без плюса
+            return True, '+' + clean_phone
+        else:
+            return False, 'Неверный формат номера. Ожидается российский номер (например, +7 (999) 123-45-67)'
     
     @staticmethod
     def validate_email(email: str) -> tuple[bool, str]:
