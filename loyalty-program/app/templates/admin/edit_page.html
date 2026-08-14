@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование страницы{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Редактирование страницы: {{ page_key }}</h2>
+    
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Заголовок</label>
+                    <input type="text" name="title" id="title" class="form-control" value="{{ page.title if page else '' }}" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="content" class="form-label">Содержимое (HTML)</label>
+                    <textarea name="content" id="content" class="form-control" rows="10">{{ page.content if page else '' }}</textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="version" class="form-label">Версия</label>
+                    <input type="text" name="version" id="version" class="form-control" value="{{ page.version if page else '1.0' }}">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Отмена</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
