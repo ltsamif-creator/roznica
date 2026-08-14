@@ -15,8 +15,9 @@
                        value="{{ phone if phone else '' }}" 
                        placeholder="+7 (___) ___-__-__" 
                        required 
-                       pattern="\d{11}"
-                       title="Введите 11 цифр номера телефона, начиная с 7 или 8"
+                       minlength="18"
+                       maxlength="18"
+                       title="Введите номер телефона в формате +7 (XXX) XXX-XX-XX"
                        class="form-control">
                 <small class="form-text">Формат: +7 (XXX) XXX-XX-XX</small>
             </div>
@@ -102,6 +103,8 @@ document.getElementById('phone').addEventListener('input', function(e) {
 // Перед отправкой формы очищаем номер от всех нецифровых символов
 document.querySelector('form').addEventListener('submit', function(e) {
     const phoneInput = document.getElementById('phone');
+    // Временно убираем maxlength для отправки, чтобы браузер не блокировал
+    phoneInput.removeAttribute('maxlength');
     // Сохраняем чистый номер (только цифры) в поле перед отправкой
     phoneInput.value = phoneInput.value.replace(/\D/g, '');
     console.log('[DEBUG] Отправляемый номер телефона:', phoneInput.value);
