@@ -15,8 +15,8 @@
                        value="{{ phone if phone else '' }}" 
                        placeholder="+7 (___) ___-__-__" 
                        required 
-                       pattern="\d{11}"
-                       title="Введите 11 цифр номера телефона, начиная с 7 или 8"
+                       pattern="\+7\s?\(?\d{3}\)?\s?\d{3}[-\s]?\d{2}[-\s]?\d{2}"
+                       title="Введите номер телефона в формате +7 (XXX) XXX-XX-XX"
                        class="form-control">
             </div>
             
@@ -32,15 +32,22 @@
 
 {% block extra_js %}
 <script>
-// Маска для телефона - отправляет чистый номер без лишних символов
+// Маска для телефона - форматирует номер в формате +7 (XXX) XXX-XX-XX
 document.getElementById('phone').addEventListener('input', function(e) {
     let value = e.target.value.replace(/\D/g, '');
-    if (value.startsWith('7')) {
-        value = value.substring(0, 11);
-    } else if (value.length > 10) {
-        value = value.substring(0, 11);
+    
+    // Обрабатываем начало номера
+    if (value.startsWith('8')) {
+        value = '7' + value.substring(1);
+    }
+    if (!value.startsWith('7')) {
+        value = '7' + value;
     }
     
+    // Ограничиваем длину 11 цифрами
+    value = value.substring(0, 11);
+    
+    // Форматируем отображение
     if (value.length >= 1) {
         let formatted = '+7';
         if (value.length > 1) {
@@ -59,11 +66,10 @@ document.getElementById('phone').addEventListener('input', function(e) {
     }
 });
 
-// Перед отправкой формы очищаем номер от всех нецифровых символов
+// Перед отправкой формы оставляем номер в отформатированном виде
 document.querySelector('form').addEventListener('submit', function(e) {
     const phoneInput = document.getElementById('phone');
-    // Сохраняем чистый номер (только цифры) в поле перед отправкой
-    phoneInput.value = phoneInput.value.replace(/\D/g, '');
+    // Не очищаем номер - отправляем в отформатированном виде
     console.log('[DEBUG] Отправляемый номер телефона:', phoneInput.value);
 });
 </script>
