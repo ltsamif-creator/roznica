@@ -4,7 +4,7 @@ Flask application factory
 """
 
 import os
-from flask import Flask, session
+from flask import Flask, session, render_template
 from datetime import timedelta
 
 from config import config, Config
