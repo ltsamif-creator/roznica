@@ -15,7 +15,8 @@
                        value="{{ phone if phone else '' }}" 
                        placeholder="+7 (___) ___-__-__" 
                        required 
-                       pattern="\+7\d{10}"
+                       pattern="\d{11}"
+                       title="Введите 11 цифр номера телефона, начиная с 7 или 8"
                        class="form-control">
             </div>
             
