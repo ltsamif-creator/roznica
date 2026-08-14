@@ -154,15 +154,16 @@ class ValidationService:
             parsed = phonenumbers.parse(phone, 'RU')
             
             # Проверяем, что это российский номер
-            if phonenumbers.country_code_for_number(parsed) != 7:
-                return False, 'Поддерживаются только российские номера'
+            if phonenumbers.country_code_for_region('RU') != 7:
+                if parsed.country_code != 7:
+                    return False, 'Поддерживаются только российские номера'
             
             # Проверяем валидность
             if not phonenumbers.is_valid_number(parsed):
                 return False, 'Неверный формат номера телефона'
             
             # Нормализуем к формату +7XXXXXXXXXX
-            normalized = '+' + str(phonenumbers.country_code_for_number(parsed)) + str(phonenumbers.national_number(parsed))
+            normalized = '+' + str(parsed.country_code) + str(phonenumbers.national_number(parsed))
             
             if len(normalized) != 12:
                 return False, 'Неверный формат номера'
