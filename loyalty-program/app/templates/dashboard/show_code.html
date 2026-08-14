@@ -11,6 +11,10 @@
             Скидка {{ discount_percent }}%
         </div>
         
+        <div class="barcode-wrapper">
+            <img src="{{ url_for('dashboard.get_barcode') }}" alt="Штрих-код карты лояльности" class="loyalty-barcode">
+        </div>
+        
         <div class="full-code">
             {{ user.discount_code }}
         </div>
@@ -55,6 +59,20 @@
     margin-bottom: 30px;
 }
 
+.barcode-wrapper {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+.loyalty-barcode {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
 .full-code {
     font-size: 64px;
     font-weight: bold;
@@ -84,6 +102,10 @@
     .discount-badge {
         font-size: 20px;
         padding: 8px 20px;
+    }
+    
+    .barcode-wrapper {
+        padding: 15px;
     }
 }
 </style>

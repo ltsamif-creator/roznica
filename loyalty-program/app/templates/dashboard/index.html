@@ -16,11 +16,14 @@
         
         <div class="code-display">
             <p class="code-label">Ваш код постоянного покупателя:</p>
+            <div class="barcode-preview">
+                <img src="{{ url_for('dashboard.get_barcode') }}" alt="Штрих-код карты лояльности" class="preview-barcode">
+            </div>
             <div class="code-value">{{ user.discount_code }}</div>
             <p class="code-hint">Покажите этот код кассиру для получения скидки</p>
         </div>
         
-        <a href="{{ url_for('dashboard.show_code') }}" class="btn btn-primary btn-lg btn-block">Показать код на весь экран</a>
+        <a href="{{ url_for('dashboard.show_code') }}" class="btn btn-primary btn-lg btn-block">Показать штрих-код на весь экран</a>
     </div>
     
     <div class="user-info-card">
@@ -61,6 +64,20 @@
     padding: 30px;
     margin-bottom: 20px;
     text-align: center;
+}
+
+.barcode-preview {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    display: inline-block;
+}
+
+.preview-barcode {
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
 
 .code-value {
