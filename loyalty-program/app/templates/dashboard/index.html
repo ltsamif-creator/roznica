@@ -2,6 +2,166 @@
 
 {% block title %}Личный кабинет - {{ app_name }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 32px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        margin-bottom: 8px;
+    }
+
+    .welcome-text {
+        color: var(--gray-500);
+        font-size: 1.05rem;
+    }
+
+    .discount-card {
+        background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
+        color: white;
+        border-radius: var(--radius-lg);
+        padding: 40px 32px;
+        margin-bottom: 24px;
+        text-align: center;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .discount-header h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+
+    .discount-percent {
+        font-size: 3rem;
+        font-weight: 800;
+        color: #FCD34D;
+        display: inline-block;
+    }
+
+    .code-display {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-md);
+        padding: 24px;
+        margin: 24px 0;
+    }
+
+    .code-label {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        margin-bottom: 16px;
+    }
+
+    .barcode-preview {
+        background: white;
+        padding: 16px;
+        border-radius: var(--radius-md);
+        margin: 16px 0;
+        display: inline-block;
+    }
+
+    .preview-barcode {
+        max-width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .code-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        letter-spacing: 4px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 16px;
+        border-radius: var(--radius-md);
+        margin: 16px 0;
+        font-family: 'Courier New', monospace;
+    }
+
+    .code-hint {
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+
+    .btn-lg {
+        padding: 14px 32px;
+        font-size: 1.05rem;
+    }
+
+    .btn-block {
+        width: 100%;
+    }
+
+    .user-info-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 32px;
+        border: 1px solid var(--gray-100);
+        box-shadow: var(--shadow-md);
+    }
+
+    .user-info-card h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        margin-bottom: 24px;
+    }
+
+    .info-list {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 12px 24px;
+        margin-bottom: 24px;
+    }
+
+    .info-list dt {
+        font-weight: 600;
+        color: var(--gray-500);
+        font-size: 0.9rem;
+    }
+
+    .info-list dd {
+        color: var(--gray-900);
+        font-weight: 500;
+    }
+
+    .user-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        padding-top: 24px;
+        border-top: 1px solid var(--gray-100);
+    }
+
+    @media (max-width: 640px) {
+        .info-list {
+            grid-template-columns: 1fr;
+            gap: 8px 0;
+        }
+        .dt {
+            color: var(--gray-500);
+            font-size: 0.85rem;
+            margin-bottom: 2px;
+        }
+        .user-actions {
+            flex-direction: column;
+        }
+        .user-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="dashboard-container">
     <div class="dashboard-header">
@@ -23,7 +183,7 @@
             <p class="code-hint">Покажите этот код кассиру для получения скидки</p>
         </div>
         
-        <a href="{{ url_for('dashboard.show_code') }}" class="btn btn-primary btn-lg btn-block">Показать штрих-код на весь экран</a>
+        <a href="{{ url_for('dashboard.show_code') }}" class="btn btn-primary btn-lg btn-block" style="background: white; color: var(--primary-600);">Показать штрих-код на весь экран</a>
     </div>
     
     <div class="user-info-card">
@@ -53,66 +213,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-.discount-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 12px;
-    padding: 30px;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.barcode-preview {
-    background: #fff;
-    padding: 15px;
-    border-radius: 8px;
-    margin: 15px 0;
-    display: inline-block;
-}
-
-.preview-barcode {
-    max-width: 100%;
-    height: auto;
-    display: block;
-}
-
-.code-value {
-    font-size: 48px;
-    font-weight: bold;
-    letter-spacing: 4px;
-    background: rgba(255,255,255,0.2);
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-    font-family: 'Courier New', monospace;
-}
-
-.discount-percent {
-    font-size: 48px;
-    color: #ffd700;
-}
-
-.info-list {
-    display: grid;
-    grid-template-columns: max-content 1fr;
-    gap: 10px 20px;
-    margin: 20px 0;
-}
-
-.info-list dt {
-    font-weight: 600;
-    color: #666;
-}
-
-.user-actions {
-    margin-top: 20px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-</style>
 {% endblock %}
