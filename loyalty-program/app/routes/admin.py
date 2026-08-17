@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 import bcrypt
 import json
-from ..models import db, User, AdminUser, Setting, ExportLog, PageContent, UserStatus
+from ..models import db, User, AdminUser, Setting, ExportLog, PageContent, UserStatus, Purchase
 from ..services.export import ExportService
 from ..services import ValidationService
 
@@ -348,3 +348,119 @@ def edit_page(page_key):
         return redirect(url_for('admin.edit_page', page_key=page_key))
     
     return render_template('admin/edit_page.html', page=page, page_key=page_key)
+
+
+@admin_bp.route('/api/new-users', methods=['GET'])
+@admin_login_required
+def api_new_users():
+    """API: Получение всех новых зарегистрированных покупателей (не экспортированных)"""
+    # Получаем параметр для фильтрации по дате (опционально)
+    days = request.args.get('days', type=int)
+    
+    query = User.query.filter(User.is_exported == False)
+    
+    if days:
+        date_from = datetime.utcnow() - timedelta(days=days)
+        query = query.filter(User.created_at >= date_from)
+    
+    users = query.order_by(User.created_at.desc()).all()
+    
+    return {
+        'success': True,
+        'users': [u.to_dict() for u in users],
+        'total_count': len(users)
+    }
+
+
+@admin_bp.route('/api/purchases/import', methods=['POST'])
+@admin_login_required
+def api_import_purchases():
+    """API: Импорт чеков покупателей в базу данных
+    
+    Ожидаемый формат JSON:
+    {
+        "purchases": [
+            {
+                "discount_code": "0010000001",
+                "receipt_number": "R001234567",
+                "store_code": "001",
+                "total_amount": 500000,
+                "discount_amount": 25000,
+                "purchase_date": "2025-01-15T10:30:00",
+                "items": [...]  // опционально
+            },
+            ...
+        ]
+    }
+    """
+    data = request.get_json()
+    
+    if not data or 'purchases' not in data:
+        return {'success': False, 'error': 'Необходимо передать массив purchases'}, 400
+    
+    purchases_data = data['purchases']
+    if not isinstance(purchases_data, list):
+        return {'success': False, 'error': 'purchases должен быть массивом'}, 400
+    
+    imported_count = 0
+    errors = []
+    
+    for idx, p_data in enumerate(purchases_data):
+        try:
+            # Проверяем обязательные поля
+            required_fields = ['discount_code', 'receipt_number', 'store_code', 'total_amount', 'purchase_date']
+            for field in required_fields:
+                if field not in p_data:
+                    errors.append(f"Запись {idx}: отсутствует поле {field}")
+                    continue
+            
+            # Находим пользователя по коду скидки
+            user = User.query.filter_by(discount_code=p_data['discount_code']).first()
+            if not user:
+                errors.append(f"Запись {idx}: пользователь с кодом {p_data['discount_code']} не найден")
+                continue
+            
+            # Проверяем, нет ли уже такого чека
+            existing = Purchase.query.filter_by(receipt_number=p_data['receipt_number']).first()
+            if existing:
+                errors.append(f"Запись {idx}: чек {p_data['receipt_number']} уже существует")
+                continue
+            
+            # Парсим дату покупки
+            purchase_date = p_data['purchase_date']
+            if isinstance(purchase_date, str):
+                try:
+                    purchase_date = datetime.fromisoformat(purchase_date.replace('Z', '+00:00'))
+                except ValueError:
+                    purchase_date = datetime.strptime(purchase_date, '%Y-%m-%d %H:%M:%S')
+            
+            # Создаем запись о покупке
+            purchase = Purchase(
+                user_id=user.id,
+                receipt_number=p_data['receipt_number'],
+                store_code=p_data['store_code'],
+                total_amount=p_data['total_amount'],
+                discount_amount=p_data.get('discount_amount', 0),
+                purchase_date=purchase_date,
+                items=json.dumps(p_data.get('items')) if p_data.get('items') else None
+            )
+            
+            db.session.add(purchase)
+            imported_count += 1
+            
+        except Exception as e:
+            errors.append(f"Запись {idx}: ошибка {str(e)}")
+    
+    # Сохраняем все изменения
+    if imported_count > 0:
+        db.session.commit()
+    else:
+        db.session.rollback()
+    
+    result = {
+        'success': True,
+        'imported_count': imported_count,
+        'errors': errors if errors else None
+    }
+    
+    return result

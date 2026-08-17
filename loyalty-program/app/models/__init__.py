@@ -267,3 +267,45 @@ class PageContent(db.Model):
     
     def __repr__(self):
         return f'<PageContent {self.page_key} v{self.version}>'
+
+
+class Purchase(db.Model):
+    """Модель покупки (чека) покупателя"""
+    
+    __tablename__ = 'purchases'
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    receipt_number = Column(String(50), nullable=False, index=True)  # Номер чека
+    store_code = Column(String(3), nullable=False)  # Код магазина
+    total_amount = Column(Integer, nullable=False)  # Сумма чека в копейках
+    discount_amount = Column(Integer, default=0, nullable=False)  # Сумма скидки в копейках
+    purchase_date = Column(DateTime, nullable=False, index=True)  # Дата покупки
+    
+    # Дополнительные данные (JSON)
+    items = Column(Text, nullable=True)  # JSON со списком товаров
+    
+    # Даты
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    
+    # Связь с пользователем
+    user = relationship('User', backref=db.backref('purchases', lazy='dynamic'))
+    
+    def to_dict(self):
+        """Конвертация в словарь"""
+        import json
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'receipt_number': self.receipt_number,
+            'store_code': self.store_code,
+            'total_amount': self.total_amount,
+            'discount_amount': self.discount_amount,
+            'purchase_date': self.purchase_date.isoformat() if self.purchase_date else None,
+            'items': json.loads(self.items) if self.items else [],
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+    
+    def __repr__(self):
+        return f'<Purchase {self.receipt_number} user={self.user_id}>'
