@@ -6,8 +6,36 @@ __pycache__/
 *.pyd
 
 # Database
-*.db
+instance/loyalty.db
 
-# Test coverage
-.pytest_cache/
+# Environment
+.env
+.env.local
+*.env.*
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+# Editors
+.vscode/
+.idea/
+
+# Dependencies
+.venv/
+venv/
+pip-log.txt
+pipenv.lock
+
+# Build and distribution
+build/
+dist/
+*.egg-info/
+.coverage
+htmlcov/
+.coverage.*
 ```

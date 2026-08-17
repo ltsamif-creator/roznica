@@ -283,7 +283,7 @@ class Purchase(db.Model):
     purchase_date = Column(DateTime, nullable=False, index=True)  # Дата покупки
     
     # Дополнительные данные (JSON)
-    items = Column(Text, nullable=True)  # JSON со списком товаров
+    items = Column(Text, nullable=True)  # JSON со списком товаров (хранится как строка)
     
     # Даты
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
@@ -292,9 +292,26 @@ class Purchase(db.Model):
     # Связь с пользователем
     user = relationship('User', backref=db.backref('purchases', lazy='dynamic'))
     
+    def set_items(self, items_list):
+        """Установка списка товаров (конвертирует в JSON строку)"""
+        import json
+        if items_list is None:
+            self.items = None
+        else:
+            self.items = json.dumps(items_list, ensure_ascii=False)
+    
+    def get_items(self):
+        """Получение списка товаров (парсит JSON строку)"""
+        import json
+        if not self.items:
+            return []
+        try:
+            return json.loads(self.items)
+        except (json.JSONDecodeError, TypeError):
+            return []
+    
     def to_dict(self):
         """Конвертация в словарь"""
-        import json
         return {
             'id': self.id,
             'user_id': self.user_id,
@@ -303,7 +320,7 @@ class Purchase(db.Model):
             'total_amount': self.total_amount,
             'discount_amount': self.discount_amount,
             'purchase_date': self.purchase_date.isoformat() if self.purchase_date else None,
-            'items': json.loads(self.items) if self.items else [],
+            'items': self.get_items(),
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
     
