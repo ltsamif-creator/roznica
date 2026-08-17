@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Код скидки - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="fullscreen-code">
+    <div class="code-container">
+        <h1 class="program-name">{{ app_name }}</h1>
+        
+        <div class="discount-badge">
+            Скидка {{ discount_percent }}%
+        </div>
+        
+        <div class="barcode-wrapper">
+            <img src="{{ url_for('dashboard.get_barcode') }}" alt="Штрих-код карты лояльности" class="loyalty-barcode">
+        </div>
+        
+        <div class="full-code">
+            {{ user.discount_code }}
+        </div>
+        
+        <p class="instruction">Покажите этот код кассиру</p>
+        
+        <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline">Назад в кабинет</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.fullscreen-code {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+}
+
+.code-container {
+    text-align: center;
+    padding: 40px 20px;
+    max-width: 500px;
+}
+
+.program-name {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.discount-badge {
+    display: inline-block;
+    background: #ffd700;
+    color: #333;
+    padding: 10px 30px;
+    border-radius: 50px;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.barcode-wrapper {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+.loyalty-barcode {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.full-code {
+    font-size: 64px;
+    font-weight: bold;
+    letter-spacing: 8px;
+    color: #1a5276;
+    background: #f0f4f8;
+    padding: 40px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-family: 'Courier New', monospace;
+    word-break: break-all;
+}
+
+.instruction {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 600px) {
+    .full-code {
+        font-size: 42px;
+        letter-spacing: 4px;
+        padding: 30px 15px;
+    }
+    
+    .discount-badge {
+        font-size: 20px;
+        padding: 8px 20px;
+    }
+    
+    .barcode-wrapper {
+        padding: 15px;
+    }
+}
+</style>
+{% endblock %}
