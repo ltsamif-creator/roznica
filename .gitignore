@@ -1,16 +1,1 @@
-```
-# Database files
-*.db
-
-# Environment variables
-.env
-.env.local
-*.env.*
-
-# Logs
-*.log
-
-# Temporary files
-*.tmp
-*.swp
-```
+Nothing should be ignored based on the provided file changes. The only added file is a Python source file (`loyalty-program/reset_admin.py`), which should not be ignored. There are no build artifacts, dependencies, temporary files, or other items that need to be added to .gitignore.
