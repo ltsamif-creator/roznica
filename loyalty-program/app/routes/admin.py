@@ -441,9 +441,12 @@ def api_import_purchases():
                 store_code=p_data['store_code'],
                 total_amount=p_data['total_amount'],
                 discount_amount=p_data.get('discount_amount', 0),
-                purchase_date=purchase_date,
-                items=json.dumps(p_data.get('items')) if p_data.get('items') else None
+                purchase_date=purchase_date
             )
+            
+            # Устанавливаем товары через метод set_items
+            if p_data.get('items'):
+                purchase.set_items(p_data['items'])
             
             db.session.add(purchase)
             imported_count += 1
