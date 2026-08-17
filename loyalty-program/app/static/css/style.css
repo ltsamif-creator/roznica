@@ -1,15 +1,118 @@
 /* Основные стили приложения */
 
 :root {
-    --primary: #1a5276;
-    --secondary: #2e86c1;
-    --accent: #e67e22;
-    --success: #27ae60;
-    --danger: #e74c3c;
-    --warning: #f39c12;
-    --light: #f8f9fa;
-    --dark: #343a40;
-    --border: #dee2e6;
+    /* Primary colors - синяя палитра */
+    --primary-50: #e8f1f7;
+    --primary-100: #d1e3ef;
+    --primary-200: #a3c7df;
+    --primary-300: #75aad0;
+    --primary-400: #478dc0;
+    --primary-500: #1a5276;
+    --primary-600: #154360;
+    --primary-700: #10354a;
+    --primary-800: #0b2635;
+    --primary-900: #06181f;
+    
+    /* Secondary colors - голубая палитра */
+    --secondary-50: #ebf7fd;
+    --secondary-100: #d7effb;
+    --secondary-200: #b5dff8;
+    --secondary-300: #92cff4;
+    --secondary-400: #70bff1;
+    --secondary-500: #4dafee;
+    --secondary-600: #2e86c1;
+    --secondary-700: #246b9b;
+    --secondary-800: #1b5075;
+    --secondary-900: #11354f;
+    
+    /* Accent colors - оранжевая палитра */
+    --accent-50: #fef5e7;
+    --accent-100: #fcebcc;
+    --accent-200: #fad599;
+    --accent-300: #f7bf66;
+    --accent-400: #f5a933;
+    --accent-500: #e67e22;
+    --accent-600: #ba651a;
+    --accent-700: #8d4c14;
+    --accent-800: #61340e;
+    --accent-900: #341b07;
+    
+    /* Success colors - зеленая палитра */
+    --success-50: #e8f8ed;
+    --success-100: #d1f1db;
+    --success-200: #a3e3b8;
+    --success-300: #75d594;
+    --success-400: #47c771;
+    --success-500: #27ae60;
+    --success-600: #1f8c4d;
+    --success-700: #176a3a;
+    --success-800: #0f4727;
+    --success-900: #082514;
+    
+    /* Danger colors - красная палитра */
+    --danger-50: #fdedec;
+    --danger-100: #fbdbd9;
+    --danger-200: #f7b7b3;
+    --danger-300: #f3938d;
+    --danger-400: #ef6f67;
+    --danger-500: #e74c3c;
+    --danger-600: #b93d30;
+    --danger-700: #8c2e24;
+    --danger-800: #5e1f18;
+    --danger-900: #31100c;
+    
+    /* Warning colors - желтая палитра */
+    --warning-50: #fef9e7;
+    --warning-100: #fdf3ce;
+    --warning-200: #fae79d;
+    --warning-300: #f8db6c;
+    --warning-400: #f5cf3b;
+    --warning-500: #f39c12;
+    --warning-600: #c27d0e;
+    --warning-700: #915e0b;
+    --warning-800: #613f07;
+    --warning-900: #301f04;
+    
+    /* Gray scale */
+    --gray-50: #f8f9fa;
+    --gray-100: #f1f3f5;
+    --gray-200: #e9ecef;
+    --gray-300: #dee2e6;
+    --gray-400: #ced4da;
+    --gray-500: #adb5bd;
+    --gray-600: #868e96;
+    --gray-700: #495057;
+    --gray-800: #343a40;
+    --gray-900: #212529;
+    
+    /* Legacy variables for backward compatibility */
+    --primary: var(--primary-500);
+    --secondary: var(--secondary-600);
+    --accent: var(--accent-500);
+    --success: var(--success-500);
+    --danger: var(--danger-500);
+    --warning: var(--warning-500);
+    --light: var(--gray-50);
+    --dark: var(--gray-800);
+    --border: var(--gray-300);
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+    --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.15);
+    
+    /* Border radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-full: 9999px;
+    
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.3s ease;
+    --transition-slow: 0.5s ease;
 }
 
 * {
@@ -32,6 +135,104 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
+}
+
+.container-fluid {
+    width: 100%;
+    padding: 0 15px;
+}
+
+/* Grid system */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -15px;
+}
+
+.col-md-3, .col-md-6, .col-md-12, .col-12 {
+    padding: 0 15px;
+}
+
+.col-md-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+}
+
+.col-md-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+}
+
+.col-md-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+.col-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+/* Card component */
+.card {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--gray-100);
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 16px 20px;
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-100);
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.card-text {
+    color: var(--gray-600);
+}
+
+.display-4 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Card variants */
+.bg-primary {
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+    color: white;
+}
+
+.bg-success {
+    background: linear-gradient(135deg, var(--success-500), var(--success-600));
+    color: white;
+}
+
+.bg-info {
+    background: linear-gradient(135deg, var(--secondary-500), var(--secondary-600));
+    color: white;
+}
+
+.bg-warning {
+    background: linear-gradient(135deg, var(--warning-400), var(--warning-500));
+    color: var(--gray-900);
+}
+
+.bg-danger {
+    background: linear-gradient(135deg, var(--danger-500), var(--danger-600));
+    color: white;
 }
 
 /* Header */
@@ -116,22 +317,22 @@ body {
     border: 1px solid #c3e6cb;
 }
 
-.alert-error {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+.alert-error, .alert-danger {
+    background: var(--danger-50);
+    color: var(--danger-900);
+    border: 1px solid var(--danger-200);
 }
 
 .alert-warning {
-    background: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeeba;
+    background: var(--warning-50);
+    color: var(--warning-900);
+    border: 1px solid var(--warning-200);
 }
 
 .alert-info {
-    background: #d1ecf1;
-    color: #0c5460;
-    border: 1px solid #bee5eb;
+    background: var(--secondary-50);
+    color: var(--secondary-900);
+    border: 1px solid var(--secondary-200);
 }
 
 .close {
@@ -151,36 +352,59 @@ body {
     display: inline-block;
     padding: 10px 20px;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 16px;
     text-decoration: none;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all var(--transition-base);
     text-align: center;
+    font-weight: 500;
 }
 
 .btn-primary {
-    background: var(--primary);
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
     color: white;
+    box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:hover {
-    background: #154360;
+    background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
 }
 
 .btn-outline {
     background: transparent;
-    color: var(--primary);
-    border: 2px solid var(--primary);
+    color: var(--primary-600);
+    border: 2px solid var(--primary-400);
 }
 
 .btn-outline:hover {
-    background: var(--primary);
+    background: var(--primary-50);
+    border-color: var(--primary-600);
+    color: var(--primary-700);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success-500), var(--success-600));
     color: white;
 }
 
+.btn-success:hover {
+    background: linear-gradient(135deg, var(--success-600), var(--success-700));
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, var(--gray-500), var(--gray-600));
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, var(--gray-600), var(--gray-700));
+}
+
 .btn-lg {
-    padding: 12px 30px;
+    padding: 14px 32px;
     font-size: 18px;
 }
 
@@ -196,8 +420,13 @@ body {
 
 .btn-link {
     background: none;
-    color: var(--secondary);
+    color: var(--secondary-600);
     padding: 5px 10px;
+    text-decoration: underline;
+}
+
+.btn-link:hover {
+    color: var(--secondary-800);
 }
 
 /* Forms */
@@ -209,29 +438,34 @@ body {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
-    color: var(--dark);
+    color: var(--gray-700);
 }
 
 .form-control {
     width: 100%;
     padding: 12px 15px;
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 16px;
-    transition: border-color 0.3s;
+    transition: all var(--transition-fast);
+    background: white;
 }
 
 .form-control:focus {
     outline: none;
-    border-color: var(--secondary);
-    box-shadow: 0 0 0 3px rgba(46, 134, 193, 0.1);
+    border-color: var(--secondary-500);
+    box-shadow: 0 0 0 3px var(--secondary-100);
+}
+
+.form-control::placeholder {
+    color: var(--gray-400);
 }
 
 .form-text {
     display: block;
     margin-top: 5px;
     font-size: 13px;
-    color: #666;
+    color: var(--gray-500);
 }
 
 .checkbox-group {
@@ -243,14 +477,21 @@ body {
     align-items: flex-start;
     gap: 10px;
     cursor: pointer;
+    font-weight: normal;
 }
 
 .checkbox-label input[type="checkbox"] {
     margin-top: 4px;
+    accent-color: var(--primary-500);
 }
 
-.checkbox-label span {
-    font-weight: normal;
+.checkbox-label a {
+    color: var(--secondary-600);
+    text-decoration: underline;
+}
+
+.checkbox-label a:hover {
+    color: var(--secondary-800);
 }
 
 /* Auth pages */
