@@ -1,0 +1,21 @@
+OpenBLAS WARNING - could not determine the L2 cache size on this system, assuming 256k
+ * Serving Flask app 'app'
+ * Debug mode: on
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://21.0.5.130:5000
+Press CTRL+C to quit
+ * Restarting with stat
+OpenBLAS WARNING - could not determine the L2 cache size on this system, assuming 256k
+ * Debugger is active!
+ * Debugger PIN: 432-798-956
+127.0.0.1 - - [17/Aug/2026 06:44:37] "GET /admin/api/new-users HTTP/1.1" 302 -
+127.0.0.1 - - [17/Aug/2026 06:44:43] "POST /admin/login HTTP/1.1" 302 -
+127.0.0.1 - - [17/Aug/2026 06:44:43] "POST /admin/ HTTP/1.1" 405 -
+127.0.0.1 - - [17/Aug/2026 06:44:46] "GET /admin/login HTTP/1.1" 200 -
+127.0.0.1 - - [17/Aug/2026 06:44:51] "GET /admin/login HTTP/1.1" 200 -
+127.0.0.1 - - [17/Aug/2026 06:44:54] "POST /admin/login HTTP/1.1" 302 -
+127.0.0.1 - - [17/Aug/2026 06:44:54] "POST /admin/ HTTP/1.1" 405 -
+127.0.0.1 - - [17/Aug/2026 06:44:56] "GET /admin/api/new-users HTTP/1.1" 200 -
+127.0.0.1 - - [17/Aug/2026 06:45:05] "POST /admin/api/purchases/import HTTP/1.1" 200 -
