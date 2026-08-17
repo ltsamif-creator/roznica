@@ -1,14 +1,8 @@
 ```
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
+# Database files
+*.db
 
-# Database
-instance/loyalty.db
-
-# Environment
+# Environment variables
 .env
 .env.local
 *.env.*
@@ -19,23 +13,4 @@ instance/loyalty.db
 # Temporary files
 *.tmp
 *.swp
-*.swo
-
-# Editors
-.vscode/
-.idea/
-
-# Dependencies
-.venv/
-venv/
-pip-log.txt
-pipenv.lock
-
-# Build and distribution
-build/
-dist/
-*.egg-info/
-.coverage
-htmlcov/
-.coverage.*
 ```
