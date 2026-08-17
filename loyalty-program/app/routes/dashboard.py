@@ -6,7 +6,7 @@ import json
 from barcode import Code128
 from barcode.writer import ImageWriter
 from PIL import Image
-from ..models import db, User, UserStatus, Setting, ExportLog, PageContent
+from ..models import db, User, UserStatus, Setting, ExportLog, PageContent, Purchase
 from ..services.export import ExportService
 
 dashboard_bp = Blueprint('dashboard', __name__)
@@ -120,3 +120,50 @@ def api_user_info():
     """API: Информация о пользователе"""
     user = User.query.get(session['user_id'])
     return {'success': True, 'user': user.to_dict()}
+
+
+@dashboard_bp.route('/purchases')
+@login_required
+def purchases():
+    """Страница истории покупок пользователя"""
+    user = User.query.get(session['user_id'])
+    
+    # Получаем покупки пользователя, сортируем по дате (новые сверху)
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+    
+    pagination = user.purchases.order_by(Purchase.purchase_date.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+    
+    # Подсчитываем общую сумму скидок
+    total_discount = db.session.query(db.func.sum(Purchase.discount_amount)).filter(
+        Purchase.user_id == user.id
+    ).scalar() or 0
+    
+    # Подсчитываем общую сумму покупок
+    total_spent = db.session.query(db.func.sum(Purchase.total_amount)).filter(
+        Purchase.user_id == user.id
+    ).scalar() or 0
+    
+    return render_template('dashboard/purchases.html', 
+                         user=user,
+                         pagination=pagination,
+                         total_discount=total_discount,
+                         total_spent=total_spent)
+
+
+@dashboard_bp.route('/api/purchases')
+@login_required
+def api_purchases():
+    """API: Список покупок пользователя"""
+    user = User.query.get(session['user_id'])
+    
+    # Получаем все покупки
+    purchases = user.purchases.order_by(Purchase.purchase_date.desc()).all()
+    
+    return {
+        'success': True,
+        'purchases': [p.to_dict() for p in purchases],
+        'total_count': len(purchases)
+    }

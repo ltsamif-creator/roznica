@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import create_app, db
-from app.models import User, SMSCode, AdminUser, Setting, PageContent, UserStatus
+from app.models import User, SMSCode, AdminUser, Setting, PageContent, UserStatus, Purchase
 from config import Config
 
 
@@ -443,6 +443,282 @@ class TestExportService(BaseTestCase):
         self.assertEqual(user_dict['phone'], '+79991234574')
         self.assertEqual(user_dict['store_code'], '002')
         self.assertEqual(user_dict['status'], 'active')
+
+
+class TestPurchaseModel(BaseTestCase):
+    """Тесты модели покупки"""
+    
+    def test_purchase_creation(self):
+        """Тест создания покупки"""
+        # Создаем пользователя
+        user = User(
+            discount_code='0010000009',
+            phone='+79991234575',
+            email='purchase@example.com',
+            store_code='001',
+            consent_pd=True,
+            consent_pd_date=datetime.utcnow()
+        )
+        db.session.add(user)
+        db.session.commit()
+        
+        # Создаем покупку
+        purchase = Purchase(
+            user_id=user.id,
+            receipt_number='R001234567',
+            store_code='001',
+            total_amount=500000,  # 5000 рублей в копейках
+            discount_amount=25000,  # 250 рублей скидка
+            purchase_date=datetime.utcnow()
+        )
+        db.session.add(purchase)
+        db.session.commit()
+        
+        # Проверяем создание
+        found = Purchase.query.filter_by(receipt_number='R001234567').first()
+        self.assertIsNotNone(found)
+        self.assertEqual(found.user_id, user.id)
+        self.assertEqual(found.total_amount, 500000)
+        self.assertEqual(found.discount_amount, 25000)
+        
+    def test_purchase_to_dict(self):
+        """Тест конвертации покупки в словарь"""
+        user = User(
+            discount_code='0010000010',
+            phone='+79991234576',
+            email='purchase2@example.com',
+            store_code='002',
+            consent_pd=True,
+            consent_pd_date=datetime.utcnow()
+        )
+        db.session.add(user)
+        db.session.commit()
+        
+        purchase = Purchase(
+            user_id=user.id,
+            receipt_number='R001234568',
+            store_code='002',
+            total_amount=100000,
+            discount_amount=5000,
+            purchase_date=datetime.utcnow(),
+            items='[{"name": "Товар 1", "price": 100000}]'
+        )
+        db.session.add(purchase)
+        db.session.commit()
+        
+        p_dict = purchase.to_dict()
+        self.assertEqual(p_dict['receipt_number'], 'R001234568')
+        self.assertEqual(p_dict['total_amount'], 100000)
+        self.assertEqual(p_dict['store_code'], '002')
+
+
+class TestNewUsersAPI(BaseTestCase):
+    """Тесты API для получения новых пользователей"""
+    
+    def test_api_new_users_requires_admin(self):
+        """Тест что API требует админской авторизации"""
+        response = self.client.get('/admin/api/new-users')
+        # Должен быть перенаправлен на вход
+        self.assertEqual(response.status_code, 302)
+        
+    def test_api_new_users_returns_data(self):
+        """Тест получения списка новых пользователей"""
+        # Создаем админа
+        import bcrypt
+        password_hash = bcrypt.hashpw(
+            'admin123'.encode('utf-8'),
+            bcrypt.gensalt(rounds=12)
+        ).decode('utf-8')
+        
+        admin = AdminUser(
+            username='testadmin',
+            password_hash=password_hash,
+            is_active=True
+        )
+        db.session.add(admin)
+        db.session.commit()
+        
+        # Входим как админ
+        login_data = {'username': 'testadmin', 'password': 'admin123'}
+        response = self.client.post('/admin/login', data=login_data, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        
+        # Создаем нового (не экспортированного) пользователя
+        user = User(
+            discount_code='0010000011',
+            phone='+79991234577',
+            email='newuser@example.com',
+            store_code='001',
+            consent_pd=True,
+            consent_pd_date=datetime.utcnow(),
+            is_exported=False
+        )
+        db.session.add(user)
+        db.session.commit()
+        
+        # Запрашиваем API
+        response = self.client.get('/admin/api/new-users')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue(data['success'])
+        self.assertGreaterEqual(data['total_count'], 1)
+
+
+class TestPurchasesImportAPI(BaseTestCase):
+    """Тесты API для импорта покупок"""
+    
+    def test_api_import_purchases_requires_admin(self):
+        """Тест что API требует админской авторизации"""
+        response = self.client.post('/admin/api/purchases/import', json={'purchases': []})
+        # Должен быть перенаправлен на вход
+        self.assertEqual(response.status_code, 302)
+        
+    def test_api_import_purchases_success(self):
+        """Тест успешного импорта покупок"""
+        # Создаем админа
+        import bcrypt
+        password_hash = bcrypt.hashpw(
+            'admin123'.encode('utf-8'),
+            bcrypt.gensalt(rounds=12)
+        ).decode('utf-8')
+        
+        admin = AdminUser(
+            username='testadmin',
+            password_hash=password_hash,
+            is_active=True
+        )
+        db.session.add(admin)
+        db.session.commit()
+        
+        # Входим как админ
+        login_data = {'username': 'testadmin', 'password': 'admin123'}
+        response = self.client.post('/admin/login', data=login_data, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        
+        # Создаем пользователя для теста
+        user = User(
+            discount_code='0010000012',
+            phone='+79991234578',
+            email='importuser@example.com',
+            store_code='001',
+            consent_pd=True,
+            consent_pd_date=datetime.utcnow()
+        )
+        db.session.add(user)
+        db.session.commit()
+        
+        # Импортируем покупку
+        import_data = {
+            'purchases': [
+                {
+                    'discount_code': '0010000012',
+                    'receipt_number': 'R001234569',
+                    'store_code': '001',
+                    'total_amount': 250000,
+                    'discount_amount': 12500,
+                    'purchase_date': '2025-01-15T10:30:00'
+                }
+            ]
+        }
+        
+        response = self.client.post(
+            '/admin/api/purchases/import',
+            json=import_data,
+            content_type='application/json'
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue(data['success'])
+        self.assertEqual(data['imported_count'], 1)
+        
+        # Проверяем что покупка создана
+        purchase = Purchase.query.filter_by(receipt_number='R001234569').first()
+        self.assertIsNotNone(purchase)
+        self.assertEqual(purchase.total_amount, 250000)
+
+
+class TestDashboardPurchases(BaseTestCase):
+    """Тесты страницы покупок в личном кабинете"""
+    
+    def test_purchases_page_requires_auth(self):
+        """Тест что страница покупок требует авторизации"""
+        response = self.client.get('/dashboard/purchases', follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        
+    def test_purchases_page_with_data(self):
+        """Тест страницы покупок с данными"""
+        # Создаем пользователя
+        user = User(
+            discount_code='0010000013',
+            phone='+79991234579',
+            email='dashpurchase@example.com',
+            store_code='001',
+            consent_pd=True,
+            consent_pd_date=datetime.utcnow()
+        )
+        db.session.add(user)
+        db.session.commit()
+        
+        # Создаем покупку
+        purchase = Purchase(
+            user_id=user.id,
+            receipt_number='R001234570',
+            store_code='001',
+            total_amount=150000,
+            discount_amount=7500,
+            purchase_date=datetime.utcnow()
+        )
+        db.session.add(purchase)
+        db.session.commit()
+        
+        # Входим как пользователь
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['user_id'] = user.id
+        
+        # Запрашиваем страницу покупок
+        response = self.client.get('/dashboard/purchases')
+        self.assertEqual(response.status_code, 200)
+        
+    def test_api_purchases_endpoint(self):
+        """Тест API endpoint для покупок"""
+        # Создаем пользователя
+        user = User(
+            discount_code='0010000014',
+            phone='+79991234580',
+            email='apipurchase@example.com',
+            store_code='001',
+            consent_pd=True,
+            consent_pd_date=datetime.utcnow()
+        )
+        db.session.add(user)
+        db.session.commit()
+        
+        # Создаем покупку
+        purchase = Purchase(
+            user_id=user.id,
+            receipt_number='R001234571',
+            store_code='001',
+            total_amount=200000,
+            discount_amount=10000,
+            purchase_date=datetime.utcnow()
+        )
+        db.session.add(purchase)
+        db.session.commit()
+        
+        # Входим как пользователь
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['user_id'] = user.id
+        
+        # Запрашиваем API
+        response = self.client.get('/dashboard/api/purchases')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue(data['success'])
+        self.assertEqual(data['total_count'], 1)
+        self.assertEqual(data['purchases'][0]['receipt_number'], 'R001234571')
 
 
 if __name__ == '__main__':
