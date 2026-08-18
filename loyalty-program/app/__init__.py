@@ -8,7 +8,7 @@ from flask import Flask, session, render_template
 from datetime import timedelta
 
 from config import config, Config
-from app.models import db, AdminUser, Setting, PageContent, UserStatus
+from app.models import db, AdminUser, Setting, PageContent, UserStatus, User, SMSCode, ExportLog, ExportLogEntry, PasswordResetToken, Purchase
 
 
 def create_app(config_name=None):
@@ -94,4 +94,4 @@ def render_template_with_context(app, template_name, **kwargs):
 
 
 # Импорт моделей должен быть после создания db
-from app.models import User, SMSCode, AdminUser, Setting, ExportLog, PageContent
+# Все модели импортируются в create_app() для регистрации в SQLAlchemy
