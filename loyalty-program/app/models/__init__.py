@@ -25,7 +25,8 @@ class User(db.Model):
     id = Column(Integer, primary_key=True)
     discount_code = Column(String(10), unique=True, nullable=False, index=True)
     phone = Column(String(20), unique=True, nullable=False, index=True)
-    email = Column(String(120), nullable=False)
+    email = Column(String(120), unique=True, nullable=False, index=True)  # Теперь уникальный, используется как логин
+    password_hash = Column(String(255), nullable=True)  # Хэш пароля пользователя
     fio = Column(String(100), nullable=True)
     store_code = Column(String(3), nullable=False)  # Код магазина регистрации
     status = Column(SQLEnum(UserStatus), default=UserStatus.ACTIVE, nullable=False)
@@ -48,6 +49,7 @@ class User(db.Model):
     # Связи
     sms_codes = relationship('SMSCode', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     export_logs = relationship('ExportLogEntry', backref='user', lazy='dynamic')
+    password_reset_tokens = relationship('PasswordResetToken', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     
     @validates('phone')
     def validate_phone(self, key, phone):
@@ -62,6 +64,18 @@ class User(db.Model):
         if len(code) != 10 or not code.isdigit():
             raise ValueError('Код скидки должен быть 10-значным числом')
         return code
+    
+    def set_password(self, password):
+        """Установка пароля пользователя"""
+        import bcrypt
+        self.password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    
+    def check_password(self, password):
+        """Проверка пароля пользователя"""
+        import bcrypt
+        if not self.password_hash:
+            return False
+        return bcrypt.checkpw(password.encode('utf-8'), self.password_hash.encode('utf-8'))
     
     def is_active_user(self):
         """Требуется Flask-Login"""
@@ -87,7 +101,7 @@ class User(db.Model):
         }
     
     def __repr__(self):
-        return f'<User {self.phone}>'
+        return f'<User {self.email}>'
 
 
 class SMSCode(db.Model):
@@ -125,6 +139,33 @@ class SMSCode(db.Model):
     
     def __repr__(self):
         return f'<SMSCode {self.code} for {self.phone}>'
+
+
+class PasswordResetToken(db.Model):
+    """Модель токена сброса пароля"""
+    
+    __tablename__ = 'password_reset_tokens'
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    token = Column(String(100), unique=True, nullable=False, index=True)
+    method = Column(String(10), nullable=False)  # 'email' или 'sms'
+    is_used = Column(Boolean, default=False, nullable=False)
+    is_expired = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    
+    def is_valid(self):
+        """Проверка валидности токена"""
+        now = datetime.utcnow()
+        return (
+            not self.is_used and
+            not self.is_expired and
+            self.expires_at > now
+        )
+    
+    def __repr__(self):
+        return f'<PasswordResetToken {self.token[:10]}... for user {self.user_id}>'
 
 
 class AdminUser(UserMixin, db.Model):
