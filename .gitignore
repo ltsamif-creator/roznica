@@ -1,7 +1,8 @@
 ```
 # Database files
 *.db
-**/*.db
+*.sqlite
+*.sqlite3
 
 # Environment-specific files
 .env
@@ -13,39 +14,32 @@
 
 # Dependencies
 node_modules/
-.venv/
 venv/
+.venv/
 __pycache__/
-.mypy_cache/
-.pytest_cache/
-.coverage
-coverage/
-htmlcov/
-
-# Build artifacts
+*.egg-info/
 dist/
 build/
 target/
-*.pyc
-*.class
-*.o
-*.obj
-*.exe
-*.dll
-*.so
-*.a
-*.out
+.gradle/
+.mypy_cache/
+.pytest_cache/
 
-# Editors
+# IDE and editor files
 .vscode/
 .idea/
 *.swp
 *.swo
 *.tmp
 
-# System
+# OS files
 .DS_Store
 Thumbs.db
+
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
 
 # Compressed files
 *.zip
@@ -66,8 +60,4 @@ Thumbs.db
 *.Z
 *.lz
 *.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
 ```
