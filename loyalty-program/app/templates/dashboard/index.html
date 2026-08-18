@@ -142,6 +142,43 @@
         border-top: 1px solid var(--gray-100);
     }
 
+    .add-to-home-card {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        color: white;
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: var(--shadow-md);
+    }
+
+    .add-to-home-card h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .add-to-home-card p {
+        font-size: 0.9rem;
+        opacity: 0.95;
+        margin-bottom: 16px;
+    }
+
+    .add-to-home-steps {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-md);
+        padding: 16px;
+        font-size: 0.85rem;
+    }
+
+    .add-to-home-steps ol {
+        margin: 0;
+        padding-left: 20px;
+    }
+
+    .add-to-home-steps li {
+        margin-bottom: 8px;
+    }
+
     @media (max-width: 640px) {
         .info-list {
             grid-template-columns: 1fr;
@@ -211,6 +248,18 @@
             <a href="{{ url_for('dashboard.purchases') }}" class="btn btn-outline btn-sm">История покупок</a>
             <a href="{{ url_for('dashboard.revoke_consent') }}" class="btn btn-outline btn-sm">Отозвать согласие на обработку ПДн</a>
             <a href="{{ url_for('public.logout') }}" class="btn btn-outline btn-sm">Выйти</a>
+        </div>
+    </div>
+    
+    <div class="add-to-home-card">
+        <h3>📱 Добавьте приложение на главный экран</h3>
+        <p>Для быстрого доступа к вашей скидочной карте добавьте эту страницу на главный экран вашего мобильного устройства</p>
+        <div class="add-to-home-steps">
+            <strong>Как добавить:</strong>
+            <ol>
+                <li><strong>iPhone (Safari):</strong> Нажмите кнопку «Поделиться» <span style="font-size: 1.2em;">📤</span> → «На экран «Домой»</li>
+                <li><strong>Android (Chrome):</strong> Нажмите меню <span style="font-size: 1.2em;">⋮</span> → «Добавить на главный экран»</li>
+            </ol>
         </div>
     </div>
 </div>
