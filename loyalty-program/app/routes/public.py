@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
 from datetime import datetime, timedelta
-from ..models import db, User, SMSCode, PageContent, UserStatus
+import secrets
+from ..models import db, User, SMSCode, PageContent, UserStatus, PasswordResetToken
 from ..services import CodeGenerator, SMSService, ValidationService, RateLimiter
 
 public_bp = Blueprint('public', __name__)
@@ -38,8 +39,10 @@ def register():
     
     if request.method == 'POST':
         phone = request.form.get('phone', '').strip()
-        email = request.form.get('email', '').strip()
+        email = request.form.get('email', '').strip().lower()
         fio = request.form.get('fio', '').strip()
+        password = request.form.get('password', '')
+        password_confirm = request.form.get('password_confirm', '')
         consent_pd = request.form.get('consent_pd') == 'on'
         consent_marketing = request.form.get('consent_marketing') == 'on'
         
@@ -63,6 +66,21 @@ def register():
                                  store_code=store_code)
         normalized_email = result
         
+        # Валидация пароля
+        if len(password) < 6:
+            flash('Пароль должен содержать не менее 6 символов', 'error')
+            return render_template('public/register.html',
+                                 phone=normalized_phone, email=normalized_email, fio=fio,
+                                 consent_pd=consent_pd, consent_marketing=consent_marketing,
+                                 store_code=store_code)
+        
+        if password != password_confirm:
+            flash('Пароли не совпадают', 'error')
+            return render_template('public/register.html',
+                                 phone=normalized_phone, email=normalized_email, fio=fio,
+                                 consent_pd=consent_pd, consent_marketing=consent_marketing,
+                                 store_code=store_code)
+        
         # Валидация ФИО
         is_valid, result = ValidationService.validate_fio(fio)
         if not is_valid:
@@ -82,20 +100,27 @@ def register():
                                  store_code=store_code)
         
         # Проверка, не зарегистрирован ли уже этот телефон
-        existing_user = User.query.filter_by(phone=normalized_phone).first()
-        if existing_user:
+        existing_user_phone = User.query.filter_by(phone=normalized_phone).first()
+        if existing_user_phone:
             flash('Этот номер телефона уже зарегистрирован', 'info')
+            return redirect(url_for('public.login'))
+        
+        # Проверка, не зарегистрирован ли уже этот email
+        existing_user_email = User.query.filter_by(email=normalized_email).first()
+        if existing_user_email:
+            flash('Этот e-mail уже зарегистрирован', 'info')
             return redirect(url_for('public.login'))
         
         # Генерация SMS-кода
         sms_code = CodeGenerator.generate_sms_code()
         expires_at = datetime.utcnow() + timedelta(minutes=5)
         
-        # Сохраняем код в сессии (временное решение для MVP)
+        # Сохраняем данные регистрации в сессии
         session['registration_data'] = {
             'phone': normalized_phone,
             'email': normalized_email,
             'fio': normalized_fio,
+            'password': password,  # Временное хранение до подтверждения
             'store_code': store_code,
             'consent_pd': consent_pd,
             'consent_marketing': consent_marketing
@@ -150,7 +175,7 @@ def verify_sms():
             # Генерация кода скидки
             discount_code = CodeGenerator.generate_discount_code(reg_data['store_code'])
             
-            # Создание пользователя
+            # Создание пользователя с паролем
             user = User(
                 discount_code=discount_code,
                 phone=reg_data['phone'],
@@ -162,6 +187,8 @@ def verify_sms():
                 consent_pd_version='1.0',  # Версия из настроек
                 consent_marketing=reg_data.get('consent_marketing', False)
             )
+            # Установка пароля
+            user.set_password(reg_data['password'])
             
             db.session.add(user)
             db.session.commit()
@@ -185,8 +212,11 @@ def verify_sms():
             return redirect(url_for('dashboard.index'))
         
         elif purpose == 'login':
-            phone = session.get('login_phone')
-            user = User.query.filter_by(phone=phone).first()
+            login_identifier = session.get('login_identifier')  # Может быть phone или email
+            # Поиск пользователя по телефону или email
+            user = User.query.filter(
+                (User.phone == login_identifier) | (User.email == login_identifier)
+            ).first()
             
             if user and user.status == UserStatus.ACTIVE:
                 # Обновляем дату последнего входа
@@ -194,7 +224,7 @@ def verify_sms():
                 db.session.commit()
                 
                 # Очистка сессии
-                session.pop('login_phone', None)
+                session.pop('login_identifier', None)
                 session.pop('sms_code', None)
                 session.pop('sms_code_expires', None)
                 session.pop('sms_purpose', None)
@@ -236,6 +266,9 @@ def resend_sms():
         phone = session.get('registration_data', {}).get('phone')
     else:
         phone = session.get('login_phone')
+        # Для совместимости с новой логикой login_identifier
+        if not phone:
+            phone = session.get('login_identifier')
     
     if phone:
         sms_service = current_app.extensions.get('sms_service')
@@ -249,40 +282,58 @@ def resend_sms():
 def login():
     """Страница входа"""
     if request.method == 'POST':
-        phone = request.form.get('phone', '').strip()
+        login_input = request.form.get('login', '').strip()  # Может быть телефон или email
         
-        # Валидация телефона
-        is_valid, result = ValidationService.validate_phone(phone)
-        if not is_valid:
-            flash(result, 'error')
-            return render_template('public/login.html', phone=phone)
+        if not login_input:
+            flash('Введите e-mail или номер телефона', 'error')
+            return render_template('public/login.html', login=login_input)
         
-        normalized_phone = result
+        # Пробуем определить тип ввода: телефон или email
+        is_phone = login_input.startswith('+') or login_input[0].isdigit()
         
-        # Проверка существования пользователя
-        user = User.query.filter_by(phone=normalized_phone).first()
+        if is_phone:
+            # Валидация телефона
+            is_valid, result = ValidationService.validate_phone(login_input)
+            if not is_valid:
+                flash(result, 'error')
+                return render_template('public/login.html', login=login_input)
+            normalized_login = result
+        else:
+            # Валидация email
+            is_valid, result = ValidationService.validate_email(login_input)
+            if not is_valid:
+                flash(result, 'error')
+                return render_template('public/login.html', login=login_input)
+            normalized_login = result.lower()
+        
+        # Проверка существования пользователя по телефону или email
+        user = User.query.filter(
+            (User.phone == normalized_login) | (User.email == normalized_login)
+        ).first()
+        
         if not user:
-            flash('Номер телефона не найден. Пожалуйста, зарегистрируйтесь.', 'info')
+            flash('Пользователь не найден. Пожалуйста, зарегистрируйтесь.', 'info')
             return redirect(url_for('public.register'))
         
         # Проверка статуса
         if user.status != UserStatus.ACTIVE:
             flash('Аккаунт заблокирован или согласие отозвано', 'error')
-            return render_template('public/login.html', phone=normalized_phone)
+            return render_template('public/login.html', login=normalized_login)
         
         # Генерация SMS-кода для входа
         sms_code = CodeGenerator.generate_sms_code()
         expires_at = datetime.utcnow() + timedelta(minutes=5)
         
-        session['login_phone'] = normalized_phone
+        session['login_identifier'] = normalized_login  # Сохраняем как телефон или email
+        session['login_phone'] = user.phone  # Для обратной совместимости
         session['sms_code'] = sms_code
         session['sms_code_expires'] = expires_at.timestamp()
         session['sms_purpose'] = 'login'
         
-        # Отправка SMS
+        # Отправка SMS на телефон пользователя
         sms_service = current_app.extensions.get('sms_service')
         if sms_service:
-            sms_service.send_verification_code(normalized_phone, sms_code, 'login')
+            sms_service.send_verification_code(user.phone, sms_code, 'login')
         
         flash('Код подтверждения отправлен на ваш телефон', 'success')
         return redirect(url_for('public.verify_sms'))
