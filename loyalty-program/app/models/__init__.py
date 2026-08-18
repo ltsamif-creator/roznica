@@ -149,7 +149,7 @@ class PasswordResetToken(db.Model):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     token = Column(String(100), unique=True, nullable=False, index=True)
-    method = Column(String(10), nullable=False)  # 'email' или 'sms'
+    method = Column(String(10), default='sms', nullable=False)  # 'email' или 'sms'
     is_used = Column(Boolean, default=False, nullable=False)
     is_expired = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

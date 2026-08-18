@@ -1,18 +1,5 @@
 ```
-# Database files
-*.db
-**/*.db
-
-# Environment-specific files
-.env
-.env.local
-.env.*
-
-# Logs
-*.log
-
-# Dependencies
-node_modules/
+# Python
 __pycache__/
 *.pyc
 *.pyo
@@ -21,31 +8,37 @@ __pycache__/
 env/
 venv/
 .venv/
-.conda/
+.ENV
+.ENV.local
+.env
+.env.local
+.env.*
 
-# Build artifacts
-build/
-dist/
-*.egg-info/
-.coverage
-htmlcov/
-.coverage.*
-.nyc_output/
-coverage-final.json
+# Database
+*.db
+*.db-journal
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# Logs
+*.log
 
-# IDE specific files
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
+*.tmp
+
+# Build and distribution
+build/
+dist/
+*.egg-info/
+
+# Coverage
+.coverage
+coverage/
+htmlcov/
+
+# OS
+.DS_Store
+Thumbs.db
 ```
