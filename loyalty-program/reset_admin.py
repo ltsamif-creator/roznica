@@ -4,25 +4,28 @@ from app.models import User
 app = create_app()
 
 with app.app_context():
-    # Ищем админа по email (или создаем если нет)
+    # Ищем по email
     user = User.query.filter_by(email='admin@local.ru').first()
     
     if not user:
-        print("Пользователь admin@local.ru не найден, создаем...")
+        print("Пользователь не найден, создаем...")
         user = User(
+            discount_code='1000000001',  # Обязательное поле: 10 цифр
+            phone='+79990000000',
             email='admin@local.ru',
             fio='Администратор Системы',
-            phone='+70000000000',
-            discount_code='ADMIN001',
+            store_code='ADMIN',
+            status='active',
+            consent_pd=True,
+            consent_pd_date='2026-08-17',
+            consent_pd_version='1.0',
             is_exported=True  # Чтобы не попадал в выгрузку новых
         )
         db.session.add(user)
+    else:
+        print(f"Пользователь найден: {user.email}")
     
+    # Устанавливаем пароль
     user.set_password('admin123')
-    user.is_admin = True  # Устанавливаем флаг администратора
     db.session.commit()
-    
-    print(f"SUCCESS: Пользователь ID={user.id} (email: admin@local.ru)")
-    print(f"Логин: admin@local.ru")
-    print(f"Пароль: admin123")
-    print(f"Discount code: {user.discount_code}")
+    print("SUCCESS: Вход: admin@local.ru / Пароль: admin123")
